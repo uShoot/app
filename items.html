@@ -20,7 +20,69 @@
     .close-btn { display: flex; background: #ff0000; height: 45px; width: 45px; margin: -5% 0px 0px 0px; align-items: center; justify-content: center; border-radius: 25px; font-size: 35px; border: none; color: #333; position: fixed; font-weight: 600; overflow: hidden; }
     #modalBody > h2 { font-size: 20px; margin: 5px 0px 0px 0px; font-weight: 500; }
     #modalBody > p { margin: 0px 0px 20px 0px; display: flex; gap: 5px; font-weight: 400; font-size: 17px; }
+
+    /* Custom Alert Styles */
+    #customAlert {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        z-index: 1001;
+        text-align: center;
+        min-width: 280px;
+    }
+    .alert-content {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 16px;
+    }
+    .alert-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    .alert-button {
+        background: #117970;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 125px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .alert-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .alert-button.cancel {
+        background: #dc3545;
+    }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
 </style>
+
+<div class="overlay" id="overlay"></div>
+<div id="customAlert">
+    <div class="alert-content"></div>
+    <div class="alert-buttons">
+        <button class="alert-button confirm">OK</button>
+        <button class="alert-button cancel" style="display: none;">Cancel</button>
+    </div>
+</div>
+
 <div class="header">
     <h4>Elements</h4>
 </div>
@@ -48,6 +110,37 @@
         window.location.href = 'signup.html';
     }
 
+    function showAlert(message, isConfirm = false) {
+        return new Promise((resolve) => {
+            document.querySelector('.alert-content').textContent = message;
+            const confirmBtn = document.querySelector('.alert-button.confirm');
+            const cancelBtn = document.querySelector('.alert-button.cancel');
+            
+            confirmBtn.onclick = () => {
+                hideAlert();
+                resolve(true);
+            };
+            
+            if (isConfirm) {
+                cancelBtn.style.display = 'block';
+                cancelBtn.onclick = () => {
+                    hideAlert();
+                    resolve(false);
+                };
+            } else {
+                cancelBtn.style.display = 'none';
+            }
+            
+            document.getElementById('customAlert').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+    }
+
+    function hideAlert() {
+        document.getElementById('customAlert').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
     async function loadProducts() {
         showLoader();
         try {
@@ -62,7 +155,7 @@
                 displayProducts();
             }
         } catch {
-            alert('Error loading products');
+            showAlert('Error loading products');
         } finally {
             hideLoader();
         }
@@ -111,12 +204,6 @@
         document.getElementById('modalOverlay').style.display = 'none';
     }
 
-    async function initiateCustomAlert(message) {
-        return new Promise(resolve => {
-            resolve(confirm(message));
-        });
-    }
-
     async function initiateTransaction(productId) {
         showLoader();
         try {
@@ -127,13 +214,13 @@
 
             const data = await response.json();
             if (data.status === 'success') {
-                alert('Purchase successful!');
+                await showAlert('Purchase successful!');
                 loadProducts();
             } else {
-                alert(data.message || 'Purchase failed');
+                await showAlert(data.message || 'Purchase failed');
             }
         } catch {
-            alert('Error processing purchase');
+            await showAlert('Error processing purchase');
         } finally {
             hideLoader();
         }
@@ -152,16 +239,17 @@
             });
 
             const data = await response.json();
-            alert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
+            await showAlert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
         } catch {
-            alert('Error sending download link');
+            await showAlert('Error sending download link');
         } finally {
             hideLoader();
         }
     }
 
     async function initiatePayment(index) {
-        if (await initiateCustomAlert('Do you want to buy this product?')) {
+        const confirmed = await showAlert('Do you want to buy this product?', true);
+        if (confirmed) {
             await initiateTransaction(products[index].id);
         }
     }
