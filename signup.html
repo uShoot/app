@@ -4,7 +4,7 @@
 <link rel="stylesheet" type="text/css" href="style.css">
 <style>
     * { overflow: hidden; }
-    #loader , #otpSection { display: none; }
+    #loader, #otpSection, #customAlert { display: none; }
     .form-group { display: flex; flex-direction: column; gap: 10px; padding: 10px; margin: 10px; }
     input { padding: 8px 12px; border-radius: 125px; border: none; background: #ddd; outline: none; font-family: "Noto Sans", serif; }
     button { background: #000; color: #fff; border-radius: 125px; border: none; padding: 8px; font-family: "Noto Sans", serif;}
@@ -14,10 +14,48 @@
     p { font-size: 17px; }
     a { text-decoration: none; color: #333; font-weight: 700; }
     #otpSection { padding: 0px; margin: -20px 0px 0px 0px; }
+    #customAlert {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        z-index: 1000;
+        text-align: center;
+    }
+    .alert-content {
+        margin-bottom: 15px;
+    }
+    .alert-button {
+        background: #000;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
 </style>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <div id="loader">
     <div class="loader"></div>
+</div>
+<div class="overlay" id="overlay"></div>
+<div id="customAlert">
+    <div class="alert-content"></div>
+    <button class="alert-button" onclick="hideAlert()">OK</button>
 </div>
 <div class="total">
 <form id="registrationForm" onsubmit="return false;">
@@ -54,10 +92,21 @@
         document.getElementById('loader').style.display = 'none';
     }
 
+    function showAlert(message) {
+        document.querySelector('.alert-content').textContent = message;
+        document.getElementById('customAlert').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function hideAlert() {
+        document.getElementById('customAlert').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
     async function generateOtp() {
         const email = document.getElementById('email').value;
         if (!email) {
-            console.log('Please enter email');
+            showAlert('Please enter email');
             return;
         }
 
@@ -74,12 +123,12 @@
             const data = await response.json();
             if (data.status === 'success') {
                 document.getElementById('otpSection').style.display = 'block';
-                console.log('OTP sent to your email');
+                showAlert('OTP sent to your email');
             } else {
-                console.log(data.message || 'Failed to send OTP');
+                showAlert(data.message || 'Failed to send OTP');
             }
         } catch (error) {
-            console.log('Error generating OTP');
+            showAlert('Error generating OTP');
         } finally {
             hideLoader();
         }
@@ -106,13 +155,13 @@
             const data = await response.json();
             if (data.status === 'success') {
                 localStorage.setItem('u_local', email);
-                console.log('Registration successful!');
+                showAlert('Registration successful!');
                 window.location.href = 'index.html';
             } else {
-                console.log(data.message || 'Invalid OTP');
+                showAlert(data.message || 'Invalid OTP');
             }
         } catch (error) {
-            console.log('Error verifying OTP');
+            showAlert('Error verifying OTP');
         } finally {
             hideLoader();
         }
