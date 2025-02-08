@@ -9,80 +9,19 @@
     #loader, .modal-overlay { display: none; }
     #productsContainer { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
     .product-card { width: 45%; display: flex; flex-direction: column; align-items: center; text-align: center; margin: 20px 0px 0px 0px; background: #459093b0; border-radius: 12px; padding: 0px 0px 20px 0px; }
-    h3 { font-size: 14px; font-weight: 500; margin: 10px 0px 0px 0px; }
+    h3 { font-size: 14px; font-weight: 500; margin: 10px 10px 0px 10px; }
     .product-card img { width: 100%; height: 145px; object-fit: cover; }
     .btn { margin: 10px 0px 0px 0px; padding: 5px; width: 120px; border: none; display: flex; justify-content: center; gap: 10px; align-items: center; border-radius: 125px; background: #117970; color: #ddd; }
     .eye { position: absolute; margin: 10px 0px 0px -32%; padding: 4px; border-radius: 50%; border: none; display: flex; align-items: center; color: #ddd; justify-content: center; background: #2fa4ab; overflow: hidden; }
     #modalBody > img { width: 100%; height: 230px; object-fit: cover; }
     #modalBody { display: flex; flex-wrap: wrap; justify-content: center; }
-    #modalBody { display: flex; flex-direction: column; align-items: center; background: #459093; border-radius: 25px; }
+    #modalBody { display: flex; flex-direction: column; align-items: center; background: #459093; border-radius: 25px; width: 70% }
     .modal-overlay { position: fixed; top: 20%; align-items: center; width: 100%; justify-content: center; }
-    .close-btn { display: flex; background: #ff0000; height: 45px; width: 45px; margin: -5% 0px 0px 0px; align-items: center; justify-content: center; border-radius: 25px; font-size: 35px; border: none; color: #333; position: fixed; font-weight: 600; overflow: hidden; }
+    .close-btn { display: flex; background: #ff0000; height: 45px; width: 45px; margin: -5% 0px 0px 0px; align-items: center; justify-content: center; border-radius: 25px; font-size: 35px; border: none; color: #333; position: fixed; font-weight: 600; overflow: hidden; left: 18%; }
     #modalBody > h2 { font-size: 20px; margin: 5px 0px 0px 0px; font-weight: 500; }
-    #modalBody > p { margin: 0px 0px 20px 0px; display: flex; gap: 5px; font-weight: 400; font-size: 17px; }
-
-    /* Custom Alert Styles */
-    #customAlert {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.2);
-        z-index: 1001;
-        text-align: center;
-        min-width: 280px;
-    }
-    .alert-content {
-        margin-bottom: 15px;
-        color: #333;
-        font-size: 16px;
-    }
-    .alert-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-    }
-    .alert-button {
-        background: #117970;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 125px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .alert-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .alert-button.cancel {
-        background: #dc3545;
-    }
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-    }
+    #modalBody > p { margin: 0px 10px 20px 10px; display: flex; gap: 5px; font-weight: 400; font-size: 17px; flex-direction: column; }
+    .model-hero { display: flex; align-items: center; justify-content: center; flex-direction: column; }
 </style>
-
-<div class="overlay" id="overlay"></div>
-<div id="customAlert">
-    <div class="alert-content"></div>
-    <div class="alert-buttons">
-        <button class="alert-button confirm">OK</button>
-        <button class="alert-button cancel" style="display: none;">Cancel</button>
-    </div>
-</div>
-
 <div class="header">
     <h4>Elements</h4>
 </div>
@@ -95,7 +34,9 @@
 <div id="modalOverlay" class="modal-overlay">
     <div id="modalContent" class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="model-hero">
         <div id="modalBody"></div>
+    </div>
     </div>
 </div>
 
@@ -108,37 +49,6 @@
 
     if (!userEmail) {
         window.location.href = 'signup.html';
-    }
-
-    function showAlert(message, isConfirm = false) {
-        return new Promise((resolve) => {
-            document.querySelector('.alert-content').textContent = message;
-            const confirmBtn = document.querySelector('.alert-button.confirm');
-            const cancelBtn = document.querySelector('.alert-button.cancel');
-            
-            confirmBtn.onclick = () => {
-                hideAlert();
-                resolve(true);
-            };
-            
-            if (isConfirm) {
-                cancelBtn.style.display = 'block';
-                cancelBtn.onclick = () => {
-                    hideAlert();
-                    resolve(false);
-                };
-            } else {
-                cancelBtn.style.display = 'none';
-            }
-            
-            document.getElementById('customAlert').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        });
-    }
-
-    function hideAlert() {
-        document.getElementById('customAlert').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
     }
 
     async function loadProducts() {
@@ -155,7 +65,7 @@
                 displayProducts();
             }
         } catch {
-            showAlert('Error loading products');
+            alert('Error loading products');
         } finally {
             hideLoader();
         }
@@ -204,6 +114,12 @@
         document.getElementById('modalOverlay').style.display = 'none';
     }
 
+    async function initiateCustomAlert(message) {
+        return new Promise(resolve => {
+            resolve(confirm(message));
+        });
+    }
+
     async function initiateTransaction(productId) {
         showLoader();
         try {
@@ -214,13 +130,13 @@
 
             const data = await response.json();
             if (data.status === 'success') {
-                await showAlert('Purchase successful!');
+                alert('Purchase successful!');
                 loadProducts();
             } else {
-                await showAlert(data.message || 'Purchase failed');
+                alert(data.message || 'Purchase failed');
             }
         } catch {
-            await showAlert('Error processing purchase');
+            alert('Error processing purchase');
         } finally {
             hideLoader();
         }
@@ -239,17 +155,16 @@
             });
 
             const data = await response.json();
-            await showAlert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
+            alert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
         } catch {
-            await showAlert('Error sending download link');
+            alert('Error sending download link');
         } finally {
             hideLoader();
         }
     }
 
     async function initiatePayment(index) {
-        const confirmed = await showAlert('Do you want to buy this product?', true);
-        if (confirmed) {
+        if (await initiateCustomAlert('Do you want to buy this product?')) {
             await initiateTransaction(products[index].id);
         }
     }
