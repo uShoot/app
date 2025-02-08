@@ -57,7 +57,7 @@
     async function generateOtp() {
         const email = document.getElementById('email').value;
         if (!email) {
-            alert('Please enter email');
+            console.log('Please enter email');
             return;
         }
 
@@ -74,12 +74,12 @@
             const data = await response.json();
             if (data.status === 'success') {
                 document.getElementById('otpSection').style.display = 'block';
-                alert('OTP sent to your email');
+                console.log('OTP sent to your email');
             } else {
-                alert(data.message || 'Failed to send OTP');
+                console.log(data.message || 'Failed to send OTP');
             }
         } catch (error) {
-            alert('Error generating OTP');
+            console.log('Error generating OTP');
         } finally {
             hideLoader();
         }
@@ -106,13 +106,13 @@
             const data = await response.json();
             if (data.status === 'success') {
                 localStorage.setItem('u_local', email);
-                alert('Registration successful!');
+                console.log('Registration successful!');
                 window.location.href = 'index.html';
             } else {
-                alert(data.message || 'Invalid OTP');
+                console.log(data.message || 'Invalid OTP');
             }
         } catch (error) {
-            alert('Error verifying OTP');
+            console.log('Error verifying OTP');
         } finally {
             hideLoader();
         }
