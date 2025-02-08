@@ -11,7 +11,58 @@
     .purchase-card img { width: 100%; height: 145px; object-fit: cover; }
     button { margin: 10px 0px 0px 0px; padding: 5px; width: 120px; border: none; display: flex; justify-content: center; gap: 10px; align-items: center; border-radius: 125px; background: #117970; color: #ddd; }
     #purchasesContainer > p { position: fixed; top: 50%; }
+    
+    /* Custom Alert Styles */
+    #customAlert {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        z-index: 1000;
+        text-align: center;
+        min-width: 280px;
+    }
+    .alert-content {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 16px;
+    }
+    .alert-button {
+        background: #117970;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 125px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .alert-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
 </style>
+
+<div class="overlay" id="overlay"></div>
+<div id="customAlert">
+    <div class="alert-content"></div>
+    <button class="alert-button" onclick="hideAlert()">OK</button>
+</div>
+
 <div class="header">
     <h4>My Purchases</h4>
 </div>
@@ -19,9 +70,22 @@
 <div id="loader">
     <div class="loader"></div>
 </div>
+
 <script>
     const DEPLOY_URL = 'https://script.google.com/macros/s/AKfycbw8LDwU51dEUkR-mZiNNWycoKVRzQF64Rf114r5zfXr0XwcLnxajEeO5JX_LwstBszK/exec';
     const userEmail = localStorage.getItem('u_local');
+    
+    function showAlert(message) {
+        document.querySelector('.alert-content').textContent = message;
+        document.getElementById('customAlert').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function hideAlert() {
+        document.getElementById('customAlert').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
     if (!userEmail) window.location.href = 'signup.html';
 
     async function loadPurchases() {
@@ -32,10 +96,13 @@
                 body: JSON.stringify({ action: 'getUserPurchases', email: userEmail })
             });
             const data = await response.json();
-            if (data.status === 'success') displayPurchases(data.purchases);
-            else alert('Failed to load purchases');
+            if (data.status === 'success') {
+                displayPurchases(data.purchases);
+            } else {
+                showAlert('Failed to load purchases');
+            }
         } catch (error) {
-            alert('Error loading purchases');
+            showAlert('Error loading purchases');
         } finally {
             hideLoader();
         }
@@ -61,16 +128,21 @@
                 body: JSON.stringify({ action: 'sendDownloadLink', email: userEmail, itemId })
             });
             const data = await response.json();
-            alert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
+            showAlert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
         } catch (error) {
-            alert('Error sending download link');
+            showAlert('Error sending download link');
         } finally {
             hideLoader();
         }
     }
 
-    function showLoader() { document.getElementById('loader').style.display = 'flex'; }
-    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+    function showLoader() { 
+        document.getElementById('loader').style.display = 'flex'; 
+    }
+    
+    function hideLoader() { 
+        document.getElementById('loader').style.display = 'none'; 
+    }
 
     loadPurchases();
 </script>
